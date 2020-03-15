@@ -1,0 +1,15 @@
+{
+  "name": "whatcha-say",
+  "version": "0.0.1",
+  "description": "",
+  "main": "whatchasay.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Michal Napiorkowski",
+  "license": "BSD",
+  "dependencies": {
+    "chrome-remote-interface": "^0.28.1",
+    "http-status-codes": "^1.4.0"
+  }
+}
