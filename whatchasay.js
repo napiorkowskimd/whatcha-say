@@ -15,6 +15,22 @@ async function main() {
 
     const { Network } = client
 
+    function checksum(data) {
+        return Crypto
+            .createHash('md5')
+            .update(data)
+            .digest()
+    }
+
+    function shortenNameIfNeeded(name) {
+        const maxLen = 255 -4
+        if (name.length < maxLen) return name
+        const template = '-TLDR-'
+        const ext = Path.extname(name)
+        const suffix = template + checksum(Buffer.from(name)).toString('base64') + ext
+        prefix = name.slice(0, maxLen - suffix.length)
+        return prefix + suffix
+    }
 
     function urlToPath(url) {
         url = new URL(url)
@@ -23,14 +39,7 @@ async function main() {
             pathname = "/index.html"
         }
 
-        return Path.join(outDir, url.hostname, ...pathname.split('/'))
-    }
-
-    function checksum(data) {
-        return Crypto
-            .createHash('md5')
-            .update(data)
-            .digest()
+        return Path.join(outDir, url.hostname, ...pathname.split('/').map(shortenNameIfNeeded))
     }
 
     function saveChecksum(url, body) {
