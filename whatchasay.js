@@ -169,14 +169,20 @@ async function main() {
     }
 
     Network.requestIntercepted(async (params) => {
-        if (params.responseErrorReason || !params.responseStatusCode) {
+        if (params.responseErrorReason || !params.responseStatusCode
+            || params.responseStatusCode == 301) {
             await Network.continueInterceptedRequest({ interceptionId: params.interceptionId })
             return
         }
 
         const url = params.request.url
-
-        let { body, base64Encoded } = await Network.getResponseBodyForInterception({ interceptionId: params.interceptionId })
+        try {
+            var { body, base64Encoded } = await Network.getResponseBodyForInterception(
+                                                    { interceptionId: params.interceptionId })
+        } catch (err) {
+            console.error(err)
+            await Network.continueInterceptedRequest({ interceptionId: params.interceptionId })
+        }
         const contentType = params.responseHeaders['content-type']
         let textEncoding;
         if (contentType && contentType.startsWith('text')) {
@@ -229,7 +235,8 @@ async function main() {
 
     await Network.enable()
     await Network.setCacheDisabled({ cacheDisabled: true })
-    await Network.setRequestInterception({ patterns: [{ urlPattern: "*", interceptionStage: "HeadersReceived" }] })
+    await Network.setRequestInterception({ patterns: [{ urlPattern: "*", 
+                                                        interceptionStage: "HeadersReceived" }] })
 }
 
 main();
